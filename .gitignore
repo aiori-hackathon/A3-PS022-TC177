@@ -1,0 +1,12 @@
+# Build artifacts
+*.o
+src/loader
+src/dns_server
+traffic/flood_generator
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary test logs
+*.log
