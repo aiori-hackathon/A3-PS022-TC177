@@ -1,0 +1,45 @@
+#!/usr/sbin/nft -f
+# A3-PS022-TC177: nftables Baseline Rate Limiter for DNS Query Floods
+#
+# Implements netfilter-level rate limiting equivalent to the XDP filter:
+# 1. Length bounds (drop malformed/oversized UDP payloads)
+# 2. Per-source IP rate limit (100 pps, burst 50) using dynamic set/meter
+# 3. Global aggregate rate limit (50,000 pps, burst 10,000)
+#
+# NOTE: nftables rules execute after sk_buff allocation and IP stack entry.
+
+flush table inet ddos_filter
+
+table inet ddos_filter {
+    # Dynamic set tracking per-source IP token buckets
+    set src_ratelimit {
+        type ipv4_addr
+        flags dynamic, timeout
+        timeout 60s
+        size 65536
+    }
+
+    chain prerouting {
+        type filter hook prerouting priority filter; policy accept;
+
+        # Inspect only UDP port 53 (DNS)
+        ip protocol udp udp dport 53 goto dns_filter
+    }
+
+    chain dns_filter {
+        # 1. Length validation (Header 8 bytes + Payload 12..512 bytes = 20..520 bytes)
+        udp length < 20 counter drop
+        udp length > 520 counter drop
+
+        # 2. Per-source token bucket rate limiter
+        # Drop when an individual source IP exceeds 100 pps with burst of 50 packets
+        update @src_ratelimit { ip saddr limit rate over 100/second burst 50 packets } counter drop
+
+        # 3. Global token bucket rate limiter
+        # Drop when aggregate DNS queries exceed 50,000 pps with burst of 10,000 packets
+        limit rate over 50000/second burst 10000 packets counter drop
+
+        # 4. Admitted legitimate traffic
+        counter accept
+    }
+}
