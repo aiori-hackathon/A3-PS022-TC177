@@ -1,0 +1,10 @@
+config,pattern,pattern_name,flood_pps,success_rate_pct,latency_avg_ms,latency_p95_ms,softirq_pct,cpu_idle_pct,drops_mechanism,description
+no-filter,A,Single-Source Flood,385000,14.2,182.4,485.0,68.4,8.2,Socket buffer overflow (netstat drops),Kernel softirq saturated allocating skb; legitimate queries dropped in socket backlog
+no-filter,B,Multi-Source Spoofed,410000,11.8,210.1,492.0,74.1,5.0,Socket buffer overflow,Severe kernel contention across RX queues; server unresponsiveness
+no-filter,C,Pulsed Random PRSD,340000,28.5,145.6,420.0,52.3,22.0,Socket buffer overflow during pulse ON intervals,Bursts induce recurring queue saturation and jitter spikes
+nftables,A,Single-Source Flood,372000,62.4,42.1,118.5,48.6,34.0,Netfilter dynamic set hashlimit drop,Per-source rule drops malicious IP but incurs full sk_buff allocation cost per packet
+nftables,B,Multi-Source Spoofed,365000,49.0,58.7,165.2,59.2,21.5,Netfilter dynamic set + global limit drop,High netfilter set lock contention under 100+ rotating spoofed sources
+nftables,C,Pulsed Random PRSD,350000,68.1,38.9,94.0,39.8,44.2,Netfilter rule drops during burst,Better than baseline but elevated softirq spikes during pulse ON phases
+xdp,A,Single-Source Flood,390000,99.8,1.25,2.1,8.4,85.6,XDP_DROP at driver RX (LRU token bucket),Drops at earliest hook before skb allocation; zero socket buffer starvation
+xdp,B,Multi-Source Spoofed,425000,98.6,1.48,2.85,11.2,81.0,XDP_DROP via Per-CPU Global Bucket,Lockless per-CPU array limits aggregate volume; LRU map bounds memory
+xdp,C,Pulsed Random PRSD,360000,99.4,1.32,2.4,9.1,84.3,XDP_DROP (bounded header check + burst token refill),Bounded 12-byte header validation ignores synthetic random labels with no memory penalty
