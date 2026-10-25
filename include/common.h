@@ -7,8 +7,10 @@
 #define MIN_DNS_LEN 12
 #define DNS_PORT 53
 
-/* Map limits */
+/* Map limits — overridable at compile time with -DMAX_SRC_ENTRIES=<n> */
+#ifndef MAX_SRC_ENTRIES
 #define MAX_SRC_ENTRIES 65536
+#endif
 
 /* Rate limit defaults */
 #define DEFAULT_SRC_RATE 100ULL        /* packets / second per source */
