@@ -119,6 +119,7 @@ static void *worker_func(void *arg)
         }
     } else {
         fd = socket(AF_INET, SOCK_DGRAM, 0);
+        fprintf(stderr, "[flooder] WARNING: raw sockets unavailable (needs CAP_NET_RAW); Pattern B will use real source IP instead of spoofed IPs\n");
     }
 
     if (fd < 0) {
