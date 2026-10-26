@@ -5,7 +5,6 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra
 BPF_CFLAGS ?= -g -O2 -target bpf -D__TARGET_ARCH_x86 -I/usr/include
 
-BIN_DIR = bin
 SRC_DIR = src
 TRAFFIC_DIR = traffic
 
@@ -20,7 +19,7 @@ FLOODER_BIN = $(TRAFFIC_DIR)/flood_generator
 
 TARGETS = $(BPF_OBJ) $(LOADER_BIN) $(DNS_SERVER_BIN) $(FLOODER_BIN)
 
-.PHONY: all clean lab-setup lab-teardown bench
+.PHONY: all clean lab-setup lab-teardown bench bench-live sweep demo
 
 all: $(TARGETS)
 
@@ -38,14 +37,30 @@ $(FLOODER_BIN): $(FLOODER_SRC) include/dns_packet.h
 
 clean:
 	rm -f $(BPF_OBJ) $(LOADER_BIN) $(DNS_SERVER_BIN) $(FLOODER_BIN)
-	rm -f benchmark/results.json benchmark/results.csv benchmark/benchmark_results.png
+	rm -f benchmark/results.json benchmark/results.csv
+	rm -f benchmark/benchmark_results.png benchmark/sensitivity_results.png benchmark/sensitivity_results.txt
 
+# Offline benchmark (uses hardcoded empirical data — no root needed)
+bench: all
+	@python3 benchmark/run_benchmarks.py --simulate
+	@python3 benchmark/plot_results.py
+
+# Live benchmark (requires root: sudo make bench-live)
+bench-live: all
+	@python3 benchmark/run_benchmarks.py
+	@python3 benchmark/plot_results.py
+
+# Parameter sensitivity sweep (requires root: sudo make sweep)
+sweep: all
+	@./scripts/sensitivity_sweep.sh
+
+# Live 3-pane demo (requires root + tmux: sudo make demo)
+demo: all
+	@./scripts/demo.sh
+
+# Setup / teardown helpers
 lab-setup:
 	@sudo ./scripts/setup_lab.sh
 
 lab-teardown:
 	@sudo ./scripts/teardown_lab.sh
-
-bench: all
-	@python3 benchmark/run_benchmarks.py
-	@python3 benchmark/plot_results.py
