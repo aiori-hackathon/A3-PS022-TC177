@@ -19,7 +19,7 @@ FLOODER_BIN = $(TRAFFIC_DIR)/flood_generator
 
 TARGETS = $(BPF_OBJ) $(LOADER_BIN) $(DNS_SERVER_BIN) $(FLOODER_BIN)
 
-.PHONY: all clean lab-setup lab-teardown bench bench-live sweep demo
+.PHONY: all clean lab-setup lab-teardown bench bench-live sweep demo test check
 
 all: $(TARGETS)
 
@@ -57,6 +57,12 @@ sweep: all
 # Live 3-pane demo (requires root + tmux: sudo make demo)
 demo: all
 	@./scripts/demo.sh
+
+# Unprivileged unit test suite (ELF verification, wire-format parsing, token bucket math)
+test: $(BPF_OBJ)
+	@python3 tests/test_bpf_verifier.py
+
+check: test
 
 # Setup / teardown helpers
 lab-setup:
