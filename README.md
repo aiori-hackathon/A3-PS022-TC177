@@ -124,9 +124,13 @@ Multiplication overflow is prevented by bounding $\Delta t \le 1.0\text{s}$, whi
 
 ```
 A3-PS022-TC177/
-├── Makefile                          # Build automation for eBPF, loader, server, and flooder
-├── README.md                         # Project documentation and reproduction guide
-├── Proposed-structure-hackathon.pdf  # Project presentation deck
+├── Makefile                          # Build automation for eBPF, loader, server, tests, and demo
+├── README.md                         # Project overview and reproduction guide
+├── Proposed-structure-hackathon.pdf  # Initial presentation deck
+├── DEFENSE_QA.md                     # Mentor evaluation Q&A card & live demo checklist
+├── docs/
+│   ├── FINAL_REPORT.md               # Comprehensive technical evaluation final report
+│   └── DEMO_WALKTHROUGH.md           # Live demonstration transcripts & multi-pane walkthrough
 ├── include/
 │   ├── common.h                      # Shared structures, limits, and telemetry definitions
 │   └── dns_packet.h                  # RFC 1035 wire-format header specifications
@@ -141,10 +145,14 @@ A3-PS022-TC177/
 │   └── nftables_baseline.nft         # Equivalent baseline ruleset for nftables
 ├── scripts/
 │   ├── setup_lab.sh                  # Prepares isolated network namespaces (ns_srv <-> ns_cli)
-│   └── teardown_lab.sh               # Namespace and process cleanup script
+│   ├── teardown_lab.sh               # Namespace and process cleanup script
+│   ├── demo.sh                       # Automated 3-pane tmux live demo launcher
+│   └── sensitivity_sweep.sh          # Parameter sensitivity analyzer (LRU size & burst)
+├── tests/
+│   └── test_bpf_verifier.py          # Unprivileged unit test suite (ELF, wire-format, token math)
 └── benchmark/
     ├── run_benchmarks.py             # Benchmark orchestrator
-    ├── plot_results.py               # Generates comparative visual charts
+    ├── plot_results.py               # Generates comparative 4-panel visual charts
     ├── results.json                  # Benchmark measurements
     ├── results.csv                   # Tabular benchmark metrics
     └── benchmark_results.png         # Generated multi-panel visual chart
@@ -165,6 +173,9 @@ A3-PS022-TC177/
 ```bash
 # Build XDP eBPF bytecode, userspace loader, DNS server, and flood generator:
 make all
+
+# Run offline unit test suite (unprivileged, zero root required):
+make test
 ```
 
 Outputs created:
