@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Build Toolchain & Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            llvm \
+            libbpf-dev \
+            linux-headers-generic \
+            python3 \
+            python3-matplotlib \
+            python3-numpy \
+            gcc \
+            make
+
+      - name: Compile BPF & Userspace Binaries
+        run: |
+          make all
+
+      - name: Run Unprivileged BPF & Datapath Unit Tests
+        run: |
+          make test
+
+      - name: Run Offline Benchmark Evaluation & Chart Generation
+        run: |
+          make bench
+
+      - name: Archive Benchmark Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmark/results.json
+            benchmark/results.csv
+            benchmark/benchmark_results.png
