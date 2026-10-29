@@ -19,7 +19,7 @@ FLOODER_BIN = $(TRAFFIC_DIR)/flood_generator
 
 TARGETS = $(BPF_OBJ) $(LOADER_BIN) $(DNS_SERVER_BIN) $(FLOODER_BIN)
 
-.PHONY: all clean lab-setup lab-teardown bench bench-live sweep demo test check
+.PHONY: all clean lab-setup lab-teardown bench bench-live sweep demo test check slides
 
 all: $(TARGETS)
 
@@ -63,6 +63,11 @@ test: $(BPF_OBJ)
 	@python3 tests/test_bpf_verifier.py
 
 check: test
+
+# Presentation slides generation
+slides:
+	@pandoc -t beamer docs/presentation_slides.md -o docs/Final-Presentation-TaskForce141.pdf
+	@echo "[+] Presentation compiled to docs/Final-Presentation-TaskForce141.pdf"
 
 # Setup / teardown helpers
 lab-setup:
