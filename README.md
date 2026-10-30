@@ -126,9 +126,15 @@ Multiplication overflow is prevented by bounding $\Delta t \le 1.0\text{s}$, whi
 A3-PS022-TC177/
 ├── Makefile                          # Build automation for eBPF, loader, server, tests, and demo
 ├── README.md                         # Project overview and reproduction guide
+├── Dockerfile                        # Containerized testbed and build environment
+├── docker-compose.yml                # Multi-core privileged lab runner
 ├── Proposed-structure-hackathon.pdf  # Initial presentation deck
 ├── DEFENSE_QA.md                     # Mentor evaluation Q&A card & live demo checklist
+├── .github/
+│   └── workflows/ci.yml              # GitHub Actions CI (build, test, benchmark)
 ├── docs/
+│   ├── Final-Presentation-TaskForce141.pdf # Final Beamer presentation slide deck
+│   ├── presentation_slides.md        # Presentation slide source (Pandoc Beamer)
 │   ├── FINAL_REPORT.md               # Comprehensive technical evaluation final report
 │   └── DEMO_WALKTHROUGH.md           # Live demonstration transcripts & multi-pane walkthrough
 ├── include/
@@ -176,6 +182,16 @@ make all
 
 # Run offline unit test suite (unprivileged, zero root required):
 make test
+
+# Generate presentation slide deck PDF:
+make slides
+```
+
+### Containerized Reproduction (Docker)
+```bash
+# Build and run tests inside an isolated container:
+docker build -t a3-ps022 .
+docker run --rm a3-ps022 make test
 ```
 
 Outputs created:

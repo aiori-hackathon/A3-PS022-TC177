@@ -1,0 +1,11 @@
+services:
+  lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    network_mode: host
+    volumes:
+      - /sys/fs/bpf:/sys/fs/bpf:rw
+      - /lib/modules:/lib/modules:ro
+    command: ["/bin/bash"]
